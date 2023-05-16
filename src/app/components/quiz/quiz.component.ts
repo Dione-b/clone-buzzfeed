@@ -13,7 +13,7 @@ export class QuizComponent implements OnInit {
   questions: any
   questionSelected: any
 
-  answer: string[] = []
+  answers: string[] = []
   answerSelected: string = ""
 
   questionIndex: number = 0
@@ -37,18 +37,32 @@ export class QuizComponent implements OnInit {
   }
 
   playerChoose(value: string): void {
-    this.answer.push(value)
+    this.answers.push(value)
     this.nextStep()
   }
 
-  nextStep() {
+  async nextStep() {
     this.questionIndex += 1
 
     if(this.questionMaxIndex > this.questionIndex) {
       this.questionSelected = this.questions[this.questionIndex]
     } else {
+      const finalAnswer: string = await this.checkResult(this.answers)
       this.finished = true
+      this.answerSelected = quizQuestion.results[finalAnswer as keyof typeof quizQuestion.results]
     }
+  }
+
+  async checkResult(answers: string[]) {
+    const result = answers.reduce((previous, current, i, arr) => {
+      if(
+        arr.filter(item => item == previous).length >
+        arr.filter(item => item == current).length
+      ){
+        return previous
+      }else { return current }
+    })
+    return result
   }
 
 }
